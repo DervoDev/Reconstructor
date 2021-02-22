@@ -1,0 +1,10 @@
+tmp/
+env/
+cameraToCloud/cameraFeed/
+cameraToCloud/exampleData/
+cloud/
+mesh/
+*.blend
+*.blend1
+data.ply
+.vscode/
