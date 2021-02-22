@@ -3,8 +3,7 @@ Requirements:
 
 Deployment:
 - python -m venv env
-- pip install -r requirements
-- env\scripts\activate
+- pip install -r requirements.txt
 
 Example data available at: 
 - Download D435.bag & T265.bag from https://drive.google.com/drive/folders/18B_08fYDP-PGJVgCITZreCvBfy1RwKmO?usp=sharing
@@ -12,4 +11,5 @@ Example data available at:
 - place files in tmp/stream/
 
 Run
+- env\scripts\activate
 - python main.py
