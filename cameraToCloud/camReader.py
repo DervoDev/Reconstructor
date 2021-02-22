@@ -69,7 +69,8 @@ def readCam(folder="tmp/stream/"):
     cur_frame = 0
 
     try:
-        while True & cur_frame <10:
+        for x in range(10): # takes 10 first frames in depth stream. 
+        #while True:
             depth_frame = D435.get_depth_frame()
             depth_image = D435.get_depth_image()
             rgb_image = D435.get_rgb_image()

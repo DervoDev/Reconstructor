@@ -1,8 +1,9 @@
 Requirements: 
-- Python 3.7 (developed in 3.7.9)
+- Python 3.7 - 64 bit. (developed in 3.7.9) 
 
 Deployment:
 - python -m venv env
+- env\scripts\activate
 - pip install -r requirements.txt
 
 Example data available at: 
