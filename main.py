@@ -9,7 +9,7 @@ from mergeClouds import pointMerger
 
 
 #camera to point cloud
-#camReader.readCam()
+camReader.readCam()
 
 #merge point clouds
 pointMerger.mergeClouds()

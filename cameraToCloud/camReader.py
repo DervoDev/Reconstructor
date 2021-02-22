@@ -36,7 +36,7 @@ def print_timestamps(delay=None, **kwargs):
     if delay is not None:
         time.sleep(delay)
 
-def readCam(folder="cameraToCloud/exampleData/"):
+def readCam(folder="tmp/stream/"):
     pose_number = 0
     transformation_matrix_set265 = deque()
     transformation_matrix_set435 = deque()
