@@ -1,31 +1,28 @@
-#import open3d as o3d
-#from open3d.geometry import PointCloud as opc 
-from cameraToCloud import camReader
-from mergeClouds import pointMerger
-#import cameraToCloud.camReader  
+from sensorReader import readSensor2
+from mergeClouds import trajectory_merger
 
 
 
 
-
+#readSensor.processSensorData("t01")
 #camera to point cloud
-camReader.readCam()
+#camReader.readCam()
+#camReader2.readD435()
 
-#merge point clouds
-pointMerger.mergeClouds()
+#camReader2.processD435("tmp/stream/20210319_004514.bag", "tmp/t1/")
+#camReader2.processD435("tmp/stream/20210319_004540.bag", "tmp/t2/")
+#camReader2.processD435("tmp/stream/20210324_190511.bag", "tmp/r1/")
 
-#point cloud to mesh
-
-#- get normals on points
-
-#- - orient_normals_consistent_tangent_plane(self, k)
-#opc.orient_normals_consistent_tangent_plane(self, k)
+readSensor2.processBag("tmp/[folder]/stream/D435.bag", "tmp/[folder]/stream/T265.bag", "[folder]")
 
 
-# self model
-# k, number of suroundlying points to calculate orientation from
+#test.createRGBD()
+#trajectory_merger.createPointCloudsFromDepth("t02",1000)
+#trajectory_merger.mergeCloud("t02")
+#trajectory_merger.createAlongPathRaw("t02")
+#trajectory_merger.createConesAlongPath("t02")
 
-#- Poisson surface reconstruction
-
-
-#texturing mesh
+#trajectory_merger.checkShift("t02",1,5)
+#trajectory_merger.checkShift("t02",1,20)
+#trajectory_merger.checkShift("t02",1,50)
+#trajectory_merger.checkShift("t02",1,100)

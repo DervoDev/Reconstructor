@@ -36,6 +36,37 @@ def print_timestamps(delay=None, **kwargs):
     if delay is not None:
         time.sleep(delay)
 
+
+def readD435(folder="tmp/stream/"):
+    pose_number = 0
+    for filename in os.listdir(folder):
+        f = folder + filename
+        if filename.endswith("D435.bag"):
+            D435 = D435Sensor(is_device=False, source_name=f)
+    D435.start_sensor()
+    try:
+        for x in range(5):
+            d_image = D435.get_depth_image()
+            c_image = D435.get_rgb_image()
+            if (d_image is not None) and (c_image is not None):
+                frame_ID = str(pose_number).zfill(5)
+                print('frame ID: ',frame_ID)
+                pose_number = pose_number+1
+
+                cimg = np.asanyarray(c_image.get_data())
+                cimg = cimg[..., ::-1]
+                save_image(frame_ID, cimg)
+
+                dimg = np.asanarray(d_image.get_data())
+                dimg = dimg[..., ::-1]
+                save_depth(frame_ID,dimg)
+    except KeyboardInterrupt:
+        D435.stop_sensor()
+    finally:
+        D435.stop_sensor()
+
+
+
 def readCam(folder="tmp/stream/"):
     pose_number = 0
     transformation_matrix_set265 = deque()
@@ -67,23 +98,24 @@ def readCam(folder="tmp/stream/"):
     prev_t265_tr_mx = None
     cur_time = 0
     cur_frame = 0
-
+    print("Try")
     try:
-        for x in range(10): # takes 10 first frames in depth stream. 
-        #while True:
+        #for x in range(20): # takes 10 first frames in depth stream. 
+        while True:
+            print("frames and pose")
             depth_frame = D435.get_depth_frame()
             depth_image = D435.get_depth_image()
             rgb_image = D435.get_rgb_image()
             pose265 = T265.get_pose()
 
-            if (depth_frame is not None) and (pose265 is not None) and (rgb_image is not None):
+            if (depth_frame is not None) and (depth_image is not None) and (pose265 is not None) and (rgb_image is not None):
                 print_timestamps(D435=depth_frame.get_timestamp(), T265=pose265.get_timestamp())
 
                 # TODO: extract grayscale image here and show images
 
-                #depth_image = cv2.convertScaleAbs(depth_image, alpha=0.03)
-                #cv2.imshow('D435 Depth Frame', depth_image)
-                #cv2.waitKey(1)
+                depth_image = cv2.convertScaleAbs(depth_image, alpha=0.03)
+                cv2.imshow('D435 Depth Frame', depth_image)
+                cv2.waitKey(1)
 
                 if depth_frame.get_timestamp() < cur_time:
                     prev_t265_tr_mx = None
@@ -114,10 +146,10 @@ def readCam(folder="tmp/stream/"):
                 cur_frame = cur_frame+1
 
                 # # Point cloud 
-                save_pointCloud(frame_ID,pc)
+                #save_pointCloud(frame_ID,pc)
 
                 # # Pose matrix 
-                save_pose2(frame_ID,pose265)
+                #save_pose2(frame_ID,pose265)
                     
                 # # RGB frame image
                 if rgb_image:
@@ -126,6 +158,13 @@ def readCam(folder="tmp/stream/"):
                     save_image(frame_ID, color_image)
                 else:
                     print("coult not get color_image, skip for this frame")
+
+                if depth_image.any():
+                    d_image = np.asanyarray(depth_image.data)
+                    d_image = d_image[..., ::-1]
+                    save_depth(frame_ID,d_image)
+                else:
+                    print("coult not get depth_image, skip for this frame")
                 # # TODO: find frame-rate for stored items
 
 
@@ -165,10 +204,14 @@ def save_pointCloud(id,cloud):
     file_cloud.to_file(save_folder +"cloud/"+ id + ".ply")
     print("save complete")
 
+def save_depth(id,img):
+    os.makedirs(save_folder + "depth/", exist_ok = True)
+    imageio.imwrite(save_folder +"depth/"+ id + ".png", img)
+
 def save_image(id,img):
-    os.makedirs(save_folder + "img/",  exist_ok = True)
+    os.makedirs(save_folder + "image/",  exist_ok = True)
     #img.save(save_folder +"img/"+ id + ".png")
-    imageio.imwrite(save_folder +"img/"+ id + ".png", img)
+    imageio.imwrite(save_folder +"image/"+ id + ".png", img)
 
 def save_pose1(id,data):
     pose = data.get_pose_data()

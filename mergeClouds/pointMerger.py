@@ -20,7 +20,7 @@ def mergeClouds():
     counter = 0
     for filename in os.listdir(tmpCl):
         counter = counter + 1
-        if counter < 10:
+        if True: #counter < 10:
             if filename.endswith(".ply"):
                 #load camera position from /csv. 
                 #tra.x, tra.y, tra.z, vel.x, vel.y, vel.z, rot.w, rot.z, rot.x, rot.y
@@ -55,6 +55,11 @@ def mergeClouds():
     ))
     file_cloud.to_file("tmp/singleCloud/pointCloud.ply")
     print("save complete")
+
+
+        
+
+
 
 # borrowed from Tsykunov (2020)
 def apply_transformation(transformation, points):
