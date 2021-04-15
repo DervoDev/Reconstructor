@@ -1,31 +1,19 @@
-#import open3d as o3d
-#from open3d.geometry import PointCloud as opc 
-from cameraToCloud import camReader
-from mergeClouds import pointMerger
-#import cameraToCloud.camReader  
+from sensorReader import readSensor2
+from mergeClouds import trajectory_merger
 
 
 
 
 
-#camera to point cloud
-camReader.readCam()
-
-#merge point clouds
-pointMerger.mergeClouds()
-
-#point cloud to mesh
-
-#- get normals on points
-
-#- - orient_normals_consistent_tangent_plane(self, k)
-#opc.orient_normals_consistent_tangent_plane(self, k)
+#Main function, replace [folder] to what folder you have used.
+#readSensor2.processBag("tmp/[folder]/stream/D435.bag", "tmp/[folder]/stream/T265.bag", "[folder]")
 
 
-# self model
-# k, number of suroundlying points to calculate orientation from
+#test.createRGBD()
 
-#- Poisson surface reconstruction
+#Create point cloud and translate using raw pose data. 
+# output is stored in cloudRaw and cloudShifted. 
+# 1000 is the factor of downsampling with the algorithm only storing every k'th point, 
+# starting on 0, k, 2k, 3k, ... This to make it easier to process and analyse results. 
+trajectory_merger.createPointCloudsFromDepth("t02",1000)
 
-
-#texturing mesh
