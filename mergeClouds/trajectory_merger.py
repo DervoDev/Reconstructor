@@ -96,7 +96,7 @@ def createPointCloudsFromDepth(folder, reductionFactor = 100):
                 o3d.io.write_point_cloud("tmp/"+folder+"/cloudRaw/"+ image[:-4] + ".ply",cloud)
                 print ("Cloud nr {}: lenght before {} and after {}".format(i,s,len(np.asarray(cloud.points))))
                 print (traj[i])
-                cloud = cloud.transform(traj[i])
+                cloud = cloud.transform(np.linalg.inv(traj[i]))
                 cloud = cloud.transform(bracketTransfer)
                 o3d.io.write_point_cloud("tmp/"+folder+"/cloudShifted/"+ image[:-4] + ".ply",cloud)
                 #print("cloud {} complete".format(i))

@@ -12,7 +12,7 @@ def get_pose_difference(s,t, config):
     #print(pose_source)
     
     #print(np.matmul(np.linalg.inv(pose_source),pose_target))
-    return np.matmul(pose_target,np.linalg.inv(pose_source))
+    return np.matmul(np.linalg.inv(pose_source),pose_target)
 
 #############################################################################
 ############# New version of register_one_rgbd_pair #########################

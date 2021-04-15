@@ -4,25 +4,16 @@ from mergeClouds import trajectory_merger
 
 
 
-#readSensor.processSensorData("t01")
-#camera to point cloud
-#camReader.readCam()
-#camReader2.readD435()
 
-#camReader2.processD435("tmp/stream/20210319_004514.bag", "tmp/t1/")
-#camReader2.processD435("tmp/stream/20210319_004540.bag", "tmp/t2/")
-#camReader2.processD435("tmp/stream/20210324_190511.bag", "tmp/r1/")
-
-readSensor2.processBag("tmp/[folder]/stream/D435.bag", "tmp/[folder]/stream/T265.bag", "[folder]")
+#Main function, replace [folder] to what folder you have used.
+#readSensor2.processBag("tmp/[folder]/stream/D435.bag", "tmp/[folder]/stream/T265.bag", "[folder]")
 
 
 #test.createRGBD()
-#trajectory_merger.createPointCloudsFromDepth("t02",1000)
-#trajectory_merger.mergeCloud("t02")
-#trajectory_merger.createAlongPathRaw("t02")
-#trajectory_merger.createConesAlongPath("t02")
 
-#trajectory_merger.checkShift("t02",1,5)
-#trajectory_merger.checkShift("t02",1,20)
-#trajectory_merger.checkShift("t02",1,50)
-#trajectory_merger.checkShift("t02",1,100)
+#Create point cloud and translate using raw pose data. 
+# output is stored in cloudRaw and cloudShifted. 
+# 1000 is the factor of downsampling with the algorithm only storing every k'th point, 
+# starting on 0, k, 2k, 3k, ... This to make it easier to process and analyse results. 
+trajectory_merger.createPointCloudsFromDepth("t02",1000)
+
