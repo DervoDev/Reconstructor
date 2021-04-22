@@ -5,8 +5,8 @@ import pandas as pd
 import open3d as o3d
 from pyntcloud import PyntCloud
 from pyntcloud.io import read_ply
+from scipy.spatial.transform import Rotation as rot
 
-from open3d import open3d
 
 
 
@@ -73,13 +73,72 @@ def createConesAlongPath(folder):
     ))
     file_cloud.to_file("tmp/"+folder+"/trajectorySynced.ply")
 
-def createPointCloudsFromDepth(folder, reductionFactor = 100):
+def createPointCloudsFromDepth2(folder, reductionFactor = 100):
     print("***************************************")
     print("****** START TRAJECTORY MERGING *******")
     print("***************************************")
     traj = convert_trajectory2(folder)
     intr = o3d.io.read_pinhole_camera_intrinsic("tmp/"+folder+"/intrinsic.json")
     bracketTransfer = np.load('configs/T265toD435.npy')
+    #print(bracketTransfer)
+    i = 0
+    
+    names = ["_000","_00p","_00m","_0p0","_0pp","_0pm","_0m0","_0mp","_0mm","_m00","_m0p","_m0m","_mp0","_mpp","_mpm","_mm0","_mmp","_mmm","_mmm","_p00","_p0p","_p0m","_pp0","_ppp","_ppm","_pm0","_pmp","_pmm"]
+    os.makedirs("tmp/"+folder+"/cloudShifted/", exist_ok = True)
+    os.makedirs("tmp/"+folder+"/cloudRaw/", exist_ok = True)
+    #print(traj)
+    rots = []
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0,  0,  0),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0,  0, 90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0,  0,-90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0, 90,  0),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0, 90, 90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0, 90,-90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0,-90,  0),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0,-90, 90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0,-90,-90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=( 90,  0,  0),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=( 90,  0, 90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=( 90,  0,-90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=( 90, 90,  0),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=( 90, 90, 90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=( 90, 90,-90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=( 90,-90,  0),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=( 90,-90, 90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=( 90,-90,-90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(  0,-90,-90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(-90,  0,  0),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(-90,  0, 90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(-90,  0,-90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(-90, 90,  0),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(-90, 90, 90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(-90, 90,-90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(-90,-90,  0),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(-90,-90, 90),degrees=True))
+    rots.append(rot.from_euler(seq="XYZ",angles=(-90,-90,-90),degrees=True))
+    for image in os.listdir("tmp/"+folder+"/depth/"):
+            if image.endswith(".png") and i <1:
+                depthImg = o3d.io.read_image("tmp/"+folder+"/depth/"+image)
+                cloud = o3d.geometry.PointCloud.create_from_depth_image(depthImg, intr, depth_scale = 999.99993896484375)
+                cloud = cloud.uniform_down_sample(reductionFactor)
+                    
+                for j in range(len(names)):
+                    r = rots[j]
+                    cen = np.ndarray(shape=(3,1), buffer=np.array([0.0,0.0,0.0]))
+                    c = cloud.rotate(R=r.as_matrix(),center=cen)
+                    o3d.io.write_point_cloud("tmp/"+folder+"/cloudShifted/"+ image[:-4]+names[j]+ ".ply",c)
+
+                i += 1
+
+
+def createPointCloudsFromDepth(folder, reductionFactor = 200):
+    print("***************************************")
+    print("****** START TRAJECTORY MERGING *******")
+    print("***************************************")
+    traj = convert_trajectory2(folder)
+    intr = o3d.io.read_pinhole_camera_intrinsic("tmp/"+folder+"/intrinsic.json")
+    bracketTransfer = np.load('configs/T265toD435.npy')
+    #print(bracketTransfer)
     i = 0
     print(traj)
     for image in os.listdir("tmp/"+folder+"/depth/"):
@@ -92,12 +151,16 @@ def createPointCloudsFromDepth(folder, reductionFactor = 100):
                 os.makedirs("tmp/"+folder+"/cloudShifted/", exist_ok = True)
                 cloud = o3d.geometry.PointCloud.create_from_depth_image(depthImg, intr, depth_scale = 999.99993896484375)
                 s = len(np.asarray(cloud.points))
+                r = rot.from_euler(seq="XYZ",angles=(180,0, 0),degrees=True)
+                #r = rot.from_quat([np.cos(np.pi/2),np.sin(np.pi/2),0,])
+                #cen = np.ndarray(shape=(3,1), buffer=np.array([0.0,0.0,0.0]))
+                #cloud = cloud.rotate(R=r.as_matrix(),center=cen)
                 cloud = cloud.uniform_down_sample(reductionFactor)
                 o3d.io.write_point_cloud("tmp/"+folder+"/cloudRaw/"+ image[:-4] + ".ply",cloud)
                 print ("Cloud nr {}: lenght before {} and after {}".format(i,s,len(np.asarray(cloud.points))))
-                print (traj[i])
-                cloud = cloud.transform(np.linalg.inv(traj[i]))
-                cloud = cloud.transform(bracketTransfer)
+                #print (traj[i])
+                trans = np.matmul(traj[i],bracketTransfer)
+                c = cloud.transform(trans)
                 o3d.io.write_point_cloud("tmp/"+folder+"/cloudShifted/"+ image[:-4] + ".ply",cloud)
                 #print("cloud {} complete".format(i))
                 i += 1 
