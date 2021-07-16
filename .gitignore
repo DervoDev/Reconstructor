@@ -8,3 +8,4 @@ mesh/
 *.blend1
 data.ply
 .vscode/
+t/

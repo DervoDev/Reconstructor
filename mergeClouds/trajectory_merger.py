@@ -27,8 +27,8 @@ from scipy.spatial.transform import Rotation as rot
 #read and sort trajectory.log
 
 #matrix = np.npasanarra
-def convert_trajectory():
-    with open("tmp/image/scene/trajectory.log") as f:
+def convert_trajectory(folder):
+    with open("tmp/"+folder+"/scene/trajectory.log") as f:
         lines = f.readlines()
         f = len(lines)/5
         i = int(f)
@@ -140,29 +140,47 @@ def createPointCloudsFromDepth(folder, reductionFactor = 200):
     bracketTransfer = np.load('configs/T265toD435.npy')
     #print(bracketTransfer)
     i = 0
-    print(traj)
+    #print(traj)
+    
+    os.makedirs("tmp/"+folder+"/cloudRaw/", exist_ok = True)
+    os.makedirs("tmp/"+folder+"/cloudShifted/", exist_ok = True)
     for image in os.listdir("tmp/"+folder+"/depth/"):
             if image.endswith(".png") and True: #counter < 10:
                 depthImg = o3d.io.read_image("tmp/"+folder+"/depth/"+image)
                 #cloud = o3d.geometry.PointCloud.create_from_rgbd_image(depthImg,intr)    
                 #j = o3d.t.geometry.Image(np.asanyarray(depthImg))
                 
-                os.makedirs("tmp/"+folder+"/cloudRaw/", exist_ok = True)
-                os.makedirs("tmp/"+folder+"/cloudShifted/", exist_ok = True)
                 cloud = o3d.geometry.PointCloud.create_from_depth_image(depthImg, intr, depth_scale = 999.99993896484375)
                 s = len(np.asarray(cloud.points))
-                r = rot.from_euler(seq="XYZ",angles=(180,0, 0),degrees=True)
-                #r = rot.from_quat([np.cos(np.pi/2),np.sin(np.pi/2),0,])
-                #cen = np.ndarray(shape=(3,1), buffer=np.array([0.0,0.0,0.0]))
-                #cloud = cloud.rotate(R=r.as_matrix(),center=cen)
                 cloud = cloud.uniform_down_sample(reductionFactor)
                 o3d.io.write_point_cloud("tmp/"+folder+"/cloudRaw/"+ image[:-4] + ".ply",cloud)
-                print ("Cloud nr {}: lenght before {} and after {}".format(i,s,len(np.asarray(cloud.points))))
+                #print ("Cloud nr {}: lenght before {} and after {}".format(i,s,len(np.asarray(cloud.points))))
                 #print (traj[i])
                 trans = np.matmul(traj[i],bracketTransfer)
                 c = cloud.transform(trans)
                 o3d.io.write_point_cloud("tmp/"+folder+"/cloudShifted/"+ image[:-4] + ".ply",cloud)
                 #print("cloud {} complete".format(i))
+                i += 1 
+
+def createPointCloudsFromDepth3(folder,reductionFactor = 100):
+    print("***************************************")
+    print("****** START TRAJECTORY MERGING *******")
+    print("***************************************")
+    traj = convert_trajectory(folder)
+    intr = o3d.io.read_pinhole_camera_intrinsic("tmp/"+folder+"/intrinsic.json")
+    bracketTransfer = np.load('configs/T265toD435.npy')
+    #print(bracketTransfer)
+    i = 0
+    os.makedirs("tmp/"+folder+"/cloudFinal/", exist_ok = True)
+    for image in os.listdir("tmp/"+folder+"/depth/"):
+            if image.endswith(".png") and True: #counter < 10:
+                depthImg = o3d.io.read_image("tmp/"+folder+"/depth/"+image)
+                cloud = o3d.geometry.PointCloud.create_from_depth_image(depthImg, intr, depth_scale = 999.99993896484375)
+                cloud = cloud.uniform_down_sample(reductionFactor)
+                #trans = np.matmul(bracketTransfer,traj[i])
+                trans = np.matmul(traj[i],bracketTransfer)
+                c = cloud.transform(trans)
+                o3d.io.write_point_cloud("tmp/"+folder+"/cloudFinal/"+ image[:-4] + ".ply",c)
                 i += 1 
 
 def moveCloudByTrajectory(folder,reductionFactor = 100):
